@@ -126,15 +126,14 @@ tbody td { padding: 4px 9px; vertical-align: middle; overflow: hidden; text-over
 td.c-box { width: 40px; text-align: center; padding: 0; }
 
 .chk {
-  appearance: none; width: 17px; height: 17px; margin: 0; vertical-align: middle;
-  border: 1.5px solid #5a636b; border-radius: 4px; background: transparent;
+  appearance: none; width: 18px; height: 18px; margin: 0; vertical-align: middle;
+  border: 1.5px solid #5a636b; border-radius: 5px; background: transparent;
   cursor: pointer; transition: background .12s, border-color .12s, transform .06s;
 }
 .chk:hover { border-color: var(--accent); }
-.chk:checked { background: var(--ok); border-color: var(--ok); }
-.chk:checked::after {
-  content: ''; display: block; width: 4px; height: 8px;
-  border: solid #fff; border-width: 0 2px 2px 0; transform: rotate(42deg) translate(-1px, -1px);
+.chk:checked {
+  border-color: var(--ok);
+  background: var(--ok) url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><path d='M3.5 8.5l3 3L12.5 5' fill='none' stroke='%23fff' stroke-width='2.2' stroke-linecap='round' stroke-linejoin='round'/></svg>") center / 12px 12px no-repeat;
 }
 .chk:active { transform: scale(.9); }
 

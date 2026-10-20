@@ -1,7 +1,7 @@
-import './style.css';
-import data from './data/cards.json';
-import { t, type Lang, type Theme } from './i18n';
-import { save as saveProgress, load as loadProgress, saveFile, openFile, dataDir } from './api';
+import { dataDir, load as loadProgress, openFile, saveFile, save as saveProgress } from './api'
+import data from './data/cards.json'
+import { t, type Lang, type Theme } from './i18n'
+import './style.css'
 
 // ---------- типы ----------
 interface Card {
@@ -318,6 +318,7 @@ function renderFooter(list: Card[]): string {
 
 // ---------- сборка ----------
 function renderAll() {
+  hideTip();
   const list = visibleCards();
   document.documentElement.dataset.theme = state.theme;
   const scroller = document.querySelector('.wrap');
@@ -331,24 +332,25 @@ function renderAll() {
   bindEvents();
 }
 
-function renderToolbarOnly() {
-  const bar = document.querySelector('.tools');
-  if (!bar) { renderAll(); return; }
-  const prog = document.querySelector('.prog');
+/** Перерисовывает только таблицу и футер.
+ *  Поле поиска и остальной тулбар не трогаем — поэтому фокус не теряется,
+ *  а результаты фильтра обновляются сразу на каждую букву. */
+function renderTableOnly() {
+  hideTip();
+  const wrap = document.querySelector('.wrap');
+  if (!wrap) { renderAll(); return; }
+  const list = visibleCards();
+  const scrollTop = wrap.scrollTop;
+
+  wrap.outerHTML = `<div class="wrap">${renderTable(list)}</div>`;
+
   const foot = document.querySelector('.foot');
-  bar.outerHTML = renderToolbar();
-  if (prog) prog.outerHTML = renderProgress();
-  if (foot) foot.outerHTML = renderFooter(visibleCards());
-  bindEvents();
-  // возвращаем в поля то, что пользователь уже напечатал
-  const setVal = (id: string, v: string) => {
-    const e = document.getElementById(id) as HTMLInputElement | null;
-    if (e && e.value !== v) e.value = v;
-  };
-  setVal('f-name', state.f.name);
-  setVal('f-kind', state.f.kind);
-  setVal('f-row', state.f.row);
-  setVal('f-terr', state.f.territory);
+  if (foot) foot.outerHTML = renderFooter(list);
+
+  const sc = document.querySelector('.wrap');
+  if (sc) sc.scrollTop = scrollTop;
+
+  bindTableEvents();
 }
 
 // ---------- события ----------
@@ -390,16 +392,25 @@ function bindEvents() {
     const e = byId(id) as HTMLInputElement | null;
     e?.addEventListener('input', () => {
       state.f[key] = e.value;
-      renderToolbarOnly();
+      // перерисовываем только таблицу: поле ввода остаётся живым, фокус не теряется
+      renderTableOnly();
     });
   };
   txt('f-name', 'name'); txt('f-kind', 'kind'); txt('f-row', 'row'); txt('f-terr', 'territory');
 
   const sel = (id: string, key: 'deck' | 'expansion' | 'found') => {
     const e = byId(id) as HTMLSelectElement | null;
-    e?.addEventListener('change', () => { state.f[key] = e.value as never; renderAll(); });
+    e?.addEventListener('change', () => { state.f[key] = e.value as never; renderTableOnly(); });
   };
   sel('f-deck', 'deck'); sel('f-exp', 'expansion'); sel('f-found', 'found');
+
+  bindTableEvents();
+}
+
+/** События элементов таблицы: сортировка по столбцам и клики по строкам.
+ *  Вынесено отдельно, потому что таблица перерисовывается чаще, чем тулбар. */
+function bindTableEvents() {
+  hideTip();
 
   document.querySelectorAll<HTMLElement>('[data-sort]').forEach(th => {
     th.addEventListener('click', () => {
@@ -410,7 +421,6 @@ function bindEvents() {
     });
   });
 
-  const tip = document.getElementById('tip');
   document.querySelectorAll<HTMLElement>('tbody tr').forEach(trr => {
     const id = Number(trr.dataset.id);
     const card = CARDS[id];
@@ -427,8 +437,12 @@ function bindEvents() {
       trr.classList.toggle('done', state.checked.has(id));
       refreshCounts();
     };
-    box?.addEventListener('click', ev => { ev.preventDefault(); flip(); });
-    cb?.addEventListener('click', ev => { ev.preventDefault(); flip(); });
+    // Клик по самому квадратику: гасим всплытие, чтобы flip() не сработал
+    // второй раз через ячейку. preventDefault тут НЕЛЬЗЯ — он отменяет
+    // и визуальную установку галочки (строка зеленеет, а квадрат пустой).
+    cb?.addEventListener('click', ev => { ev.stopPropagation(); flip(); });
+    // Клик по остальной части ячейки.
+    box?.addEventListener('click', ev => { if (ev.target !== cb) flip(); });
 
     const nameCell = trr.querySelector<HTMLElement>('td.c-name');
     nameCell?.addEventListener('mouseenter', () => {
@@ -437,7 +451,8 @@ function bindEvents() {
     });
     nameCell?.addEventListener('mouseleave', () => {
       window.clearTimeout(tipTimer);
-      tipTimer = window.setTimeout(() => tip?.classList.remove('show'), 90);
+      // элемент подсказки ищем заново: к моменту привязки его ещё не было
+      tipTimer = window.setTimeout(() => hideTip(), 90);
     });
   });
 }
@@ -456,6 +471,12 @@ function ensureTip(): HTMLElement {
   let el = document.getElementById('tip');
   if (!el) { el = document.createElement('div'); el.id = 'tip'; document.body.appendChild(el); }
   return el;
+}
+
+/** Прячет всплывающую картинку (безопасно, если её ещё нет). */
+function hideTip() {
+  window.clearTimeout(tipTimer);
+  document.getElementById('tip')?.classList.remove('show');
 }
 
 function showTip(c: Card, anchor: HTMLElement) {
