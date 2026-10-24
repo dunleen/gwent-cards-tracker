@@ -9,7 +9,6 @@ const S = {
   gameLine: ['The Witcher 3, patch 1.32 + Hearts of Stone + Blood and Wine', 'Ведьмак 3, патч 1.32 + Камни Сердца + Кровь и Вино'],
 
   overall: ['Overall', 'Всего'],
-  collected: ['Collected', 'Собрано'],
 
   markAll: ['Mark all', 'Отметить все'],
   unmarkAll: ['Unmark all', 'Снять все'],
@@ -52,8 +51,6 @@ const S = {
   importFailed: ['Could not read the file', 'Не удалось прочитать файл'],
   exportFailed: ['Could not save the file', 'Не удалось сохранить файл'],
 
-  cardsShown: ['Showing {0} of {1}', 'Показано {0} из {1}'],
-  source: ['Data and images: Witcher Wiki, CC BY-SA license', 'Данные и картинки: Вики Ведьмака, лицензия CC BY-SA'],
   noResults: ['Nothing found', 'Ничего не найдено'],
 } satisfies Record<string, Pair>;
 

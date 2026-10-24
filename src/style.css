@@ -154,15 +154,6 @@ tr.done td.c-name { color: var(--fg-dim); }
 #tip img { width: 100%; display: block; border-radius: 4px; background: var(--bg-3); }
 #tip .none { padding: 26px 10px; text-align: center; color: var(--fg-dim); font-size: 11.5px; }
 
-/* ---------- подвал ---------- */
-.foot {
-  flex: 0 0 auto; display: flex; align-items: center; gap: 14px;
-  padding: 6px 16px; background: var(--bg-2); border-top: 1px solid var(--line);
-  font-size: 11.5px; color: var(--fg-dim);
-}
-.foot .grow { flex: 1; }
-.foot b { color: var(--fg); font-variant-numeric: tabular-nums; }
-
 .toast {
   position: fixed; bottom: 46px; left: 50%; transform: translateX(-50%) translateY(8px);
   background: var(--bg-3); border: 1px solid var(--line); border-radius: var(--radius);

@@ -14,12 +14,10 @@ interface Card {
   image: string | null;
 }
 interface DeckDef { en: string; ru: string; color: string }
-interface Meta { total: number; unique: number; withImage: number; game: string; source: string }
 
 const CARDS = (data as { cards: Card[] }).cards as Card[];
 const DECKS = (data as { decks: DeckDef[] }).decks as DeckDef[];
 const EXPS = (data as { expansions: DeckDef[] }).expansions as DeckDef[];
-const META = (data as { meta: Meta }).meta as Meta;
 
 // id больше не совпадает с индексом массива (карты могут удаляться),
 // поэтому во всех местах, где по id достаётся карта, используем этот поиск.
@@ -269,19 +267,6 @@ function renderTable(list: Card[]): string {
   }</tbody></table>`;
 }
 
-function renderFooter(list: Card[]): string {
-  const L = state.lang;
-  return `<div class="foot">
-    <span>${t(L, 'cardsShown', list.length, CARDS.length)}</span>
-    <span>·</span>
-    <span>${t(L, 'collected')}: <b>${state.checked.size}</b>/${CARDS.length}</span>
-    <span>·</span>
-    <span>${META.unique} ${L === 'ru' ? 'уникальных' : 'unique'}</span>
-    <span class="grow"></span>
-    <span>${t(L, 'source')}</span>
-  </div>`;
-}
-
 // ---------- сборка ----------
 function renderAll() {
   hideTip();
@@ -291,7 +276,7 @@ function renderAll() {
   const scrollTop = scroller ? scroller.scrollTop : 0;
 
   root.innerHTML = renderHeader() + renderProgress() + renderToolbar() +
-    `<div class="wrap">${renderTable(list)}</div>` + renderFooter(list);
+    `<div class="wrap">${renderTable(list)}</div>`;
 
   const sc = document.querySelector('.wrap');
   if (sc) sc.scrollTop = scrollTop;
@@ -309,9 +294,6 @@ function renderTableOnly() {
   const scrollTop = wrap.scrollTop;
 
   wrap.outerHTML = `<div class="wrap">${renderTable(list)}</div>`;
-
-  const foot = document.querySelector('.foot');
-  if (foot) foot.outerHTML = renderFooter(list);
 
   const sc = document.querySelector('.wrap');
   if (sc) sc.scrollTop = scrollTop;
@@ -408,12 +390,10 @@ function bindTableEvents() {
   });
 }
 
-/** Обновляет только полосы прогресса и цифры — дёшево и без мигания. */
+/** Обновляет только полосы прогресса — дёшево и без мигания. */
 function refreshCounts() {
   const prog = document.querySelector('.prog');
   if (prog) prog.outerHTML = renderProgress();
-  const foot = document.querySelector('.foot');
-  if (foot) foot.outerHTML = renderFooter(visibleCards());
   const btn = document.getElementById('btn-undo');
   if (btn) (btn as HTMLButtonElement).disabled = state.undo.length === 0;
 }
