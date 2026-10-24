@@ -1,6 +1,8 @@
 import { dataDir, load as loadProgress, openFile, saveFile, save as saveProgress } from './api'
 import data from './data/cards.json'
 import { t, type Lang, type Theme } from './i18n'
+import { hideTip, showTip, tipDelay } from './tip'
+import { initGuide, openGuide } from './guide'
 import './style.css'
 
 // ---------- типы ----------
@@ -151,6 +153,7 @@ function renderHeader(): string {
     <h1>${t(L, 'appTitle')}</h1>
     <span class="sub">${t(L, 'gameLine')}</span>
     <span class="grow"></span>
+    <button class="btn" id="btn-guide">📖 ${t(L, 'guideBtn')}</button>
     <button class="btn" id="btn-export">${t(L, 'exportBtn')}</button>
     <button class="btn" id="btn-import">${t(L, 'importBtn')}</button>
     <button class="btn icon" id="btn-dir" title="${t(L, 'openData')}">📂</button>
@@ -302,7 +305,6 @@ function renderTableOnly() {
 }
 
 // ---------- события ----------
-let tipTimer = 0;
 function bindEvents() {
   const byId = (id: string) => document.getElementById(id);
 
@@ -315,6 +317,7 @@ function bindEvents() {
     renderAll();
   });
   byId('btn-dir')?.addEventListener('click', () => { void dataDir(); });
+  byId('btn-guide')?.addEventListener('click', openGuide);
   byId('btn-export')?.addEventListener('click', () => { void doExport(); });
   byId('btn-import')?.addEventListener('click', () => { void doImport(); });
 
@@ -379,14 +382,10 @@ function bindTableEvents() {
 
     const nameCell = trr.querySelector<HTMLElement>('td.c-name');
     nameCell?.addEventListener('mouseenter', () => {
-      window.clearTimeout(tipTimer);
-      tipTimer = window.setTimeout(() => showTip(card, nameCell!), 180);
-    });
-    nameCell?.addEventListener('mouseleave', () => {
-      window.clearTimeout(tipTimer);
       // элемент подсказки ищем заново: к моменту привязки его ещё не было
-      tipTimer = window.setTimeout(() => hideTip(), 90);
+      tipDelay(() => showTip(card.image ? 'img/' + card.image : null, t(state.lang, 'noImage'), nameCell!), 180);
     });
+    nameCell?.addEventListener('mouseleave', () => tipDelay(hideTip, 90));
   });
 }
 
@@ -396,36 +395,6 @@ function refreshCounts() {
   if (prog) prog.outerHTML = renderProgress();
   const btn = document.getElementById('btn-undo');
   if (btn) (btn as HTMLButtonElement).disabled = state.undo.length === 0;
-}
-
-function ensureTip(): HTMLElement {
-  let el = document.getElementById('tip');
-  if (!el) { el = document.createElement('div'); el.id = 'tip'; document.body.appendChild(el); }
-  return el;
-}
-
-/** Прячет всплывающую картинку (безопасно, если её ещё нет). */
-function hideTip() {
-  window.clearTimeout(tipTimer);
-  document.getElementById('tip')?.classList.remove('show');
-}
-
-function showTip(c: Card, anchor: HTMLElement) {
-  const tip = ensureTip();
-  const L = state.lang;
-  const img = c.image
-    ? `<img src="${'img/' + c.image}" alt="" />`
-    : `<div class="none">${t(L, 'noImage')}</div>`;
-  tip.innerHTML = img;
-  tip.classList.add('show');
-  const r = anchor.getBoundingClientRect();
-  const tr2 = tip.getBoundingClientRect();
-  let left = r.right + 10;
-  if (left + tr2.width > window.innerWidth - 8) left = r.left - tr2.width - 10;
-  let top = r.top;
-  if (top + tr2.height > window.innerHeight - 8) top = Math.max(8, window.innerHeight - tr2.height - 8);
-  tip.style.left = Math.max(8, left) + 'px';
-  tip.style.top = top + 'px';
 }
 
 // ---------- экспорт / импорт ----------
@@ -461,6 +430,18 @@ async function main() {
     }
   } catch { /* начинаем с нуля */ }
   document.documentElement.dataset.theme = state.theme;
+  // связи гайда с трекером: чтение состояния, переключение копии, обновление таблицы
+  initGuide({
+    lang: () => state.lang,
+    isChecked: id => state.checked.has(id),
+    onToggle: id => {
+      pushUndo();
+      if (state.checked.has(id)) state.checked.delete(id); else state.checked.add(id);
+      scheduleSave();
+      refreshCounts();
+    },
+    refreshTable: () => renderTableOnly(),
+  });
   renderAll();
 }
 

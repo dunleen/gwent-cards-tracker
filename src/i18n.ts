@@ -45,6 +45,10 @@ const S = {
   openData: ['Data folder', 'Папка с данными'],
   themeBtn: ['Toggle theme', 'Сменить тему'],
 
+  guideBtn: ['Guide', 'Гайд'],
+  guideBack: ['Back to the table', 'К таблице'],
+  guideTitle: ['Gwent cards collection guide', 'Гайд по сбору карт'],
+
   saved: ['Saved', 'Сохранено'],
   loaded: ['Loaded', 'Загружено'],
   exported: ['Exported to:', 'Файл сохранён:'],
