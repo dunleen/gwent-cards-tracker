@@ -21,6 +21,10 @@ const DECKS = (data as { decks: DeckDef[] }).decks as DeckDef[];
 const EXPS = (data as { expansions: DeckDef[] }).expansions as DeckDef[];
 const META = (data as { meta: Meta }).meta as Meta;
 
+// id больше не совпадает с индексом массива (карты могут удаляться),
+// поэтому во всех местах, где по id достаётся карта, используем этот поиск.
+const BY_ID = new Map<number, Card>(CARDS.map(c => [c.id, c]));
+
 // ---------- состояние ----------
 type SortField = 'name' | 'kind' | 'row' | 'deck' | 'expansion' | 'type' | 'territory' | 'details';
 
@@ -423,7 +427,7 @@ function bindTableEvents() {
 
   document.querySelectorAll<HTMLElement>('tbody tr').forEach(trr => {
     const id = Number(trr.dataset.id);
-    const card = CARDS[id];
+    const card = BY_ID.get(id);
     if (!card) return;
     const box = trr.querySelector<HTMLElement>('td.c-box');
     const cb = trr.querySelector<HTMLInputElement>('input.chk');
@@ -509,7 +513,8 @@ async function doImport() {
     const obj = JSON.parse(txtIn) as { checked?: number[] };
     if (!Array.isArray(obj.checked)) throw new Error('bad');
     pushUndo();
-    state.checked = new Set(obj.checked.filter(n => n >= 0 && n < CARDS.length));
+    // число + существующий id: отсекая строки, «фантомные» и отрицательные значения
+    state.checked = new Set(obj.checked.filter(n => Number.isInteger(n) && BY_ID.has(n)));
     scheduleSave();
     renderAll();
     toast(t(state.lang, 'loaded'));
@@ -524,7 +529,8 @@ async function main() {
     const raw = await loadProgress();
     if (raw) {
       const arr = JSON.parse(raw) as number[];
-      state.checked = new Set(arr.filter(n => n >= 0 && n < CARDS.length));
+      // тот же фильтр, что и при импорте: привязка к существующим id, а не к длине массива
+      state.checked = new Set(arr.filter(n => Number.isInteger(n) && BY_ID.has(n)));
     }
   } catch { /* начинаем с нуля */ }
   document.documentElement.dataset.theme = state.theme;

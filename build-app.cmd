@@ -1,13 +1,5 @@
 @echo off
-REM Сборка Tauri с окружением MSVC, установленным на D:
-call "D:\BuildTools\VC\Auxiliary\Build\vcvars64.bat" >nul
-set CARGO_HOME=D:\Rust\.cargo
-set RUSTUP_HOME=D:\Rust\.rustup
-set PATH=D:\Rust\.cargo\bin;C:\Program Files\nodejs;%PATH%
-cd /d D:\GwentCards
-echo === cargo found ===
-where cargo
-cargo --version
-echo === сборка ===
-npm run tauri build -- --no-bundle
-echo === ГОТОВО, код ошибки %ERRORLEVEL% ===
+REM === Build GwentCards release exe ===
+REM Thin ASCII wrapper: all logic lives in build-app.ps1 (cmd.exe breaks UTF-8 batch files).
+powershell -NoProfile -ExecutionPolicy Bypass -File "%~dp0build-app.ps1"
+exit /b %ERRORLEVEL%
