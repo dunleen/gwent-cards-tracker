@@ -21,7 +21,7 @@ const S = {
   search: ['Search', 'Поиск'],
   resetFilters: ['Reset filters', 'Сбросить фильтры'],
   filterDeck: ['Deck', 'Колода'],
-  filterExpansion: ['Expansion', 'Дополнение'],
+  filterExpansion: ['Content', 'Содержимое'],
   filterKind: ['Card type', 'Тип карты'],
   filterAll: ['All', 'Все'],
 
@@ -29,7 +29,7 @@ const S = {
   colKind: ['Type', 'Тип карты'],
   colRow: ['Row', 'Ряд'],
   colDeck: ['Deck', 'Колода'],
-  colExpansion: ['Expansion', 'Дополнение'],
+  colExpansion: ['Content', 'Содержимое'],
   colTerritory: ['Territory', 'Территория'],
   colObtain: ['How to get', 'Способ получения'],
   colCollected: ['Found', 'Есть'],
