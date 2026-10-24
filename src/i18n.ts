@@ -13,8 +13,6 @@ const S = {
 
   markAll: ['Mark all', 'Отметить все'],
   unmarkAll: ['Unmark all', 'Снять все'],
-  markVisible: ['Mark visible', 'Отметить видимые'],
-  unmarkVisible: ['Unmark visible', 'Снять видимые'],
   undo: ['Undo', 'Отменить'],
   undoNothing: ['Nothing to undo', 'Отменять нечего'],
 
@@ -47,16 +45,6 @@ const S = {
   importBtn: ['Import from file', 'Загрузить из файла'],
   openData: ['Data folder', 'Папка с данными'],
   themeBtn: ['Toggle theme', 'Сменить тему'],
-
-  confirmTitle: ['Confirm', 'Подтвердите действие'],
-  confirmMark: ['Mark as collected', 'Отметить собранными'],
-  confirmUnmark: ['Clear all marks', 'Снять все отметки'],
-  confirmMarkBody: ['Cards to be marked: {0}', 'Будет отмечено карт: {0}'],
-  confirmUnmarkBody: ['Marks to be cleared: {0}', 'Будет снято отметок: {0}'],
-  confirmNote: ['You can undo this with the Undo button.', 'Действие можно отменить кнопкой «Отменить».'],
-  yes: ['Yes', 'Да'],
-  no: ['No', 'Нет'],
-  cancel: ['Cancel', 'Отмена'],
 
   saved: ['Saved', 'Сохранено'],
   loaded: ['Loaded', 'Загружено'],

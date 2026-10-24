@@ -64,8 +64,6 @@ button { cursor: pointer; }
 .btn:hover:not(:disabled) { background: var(--hover); border-color: #4a525a; }
 .btn:active:not(:disabled) { transform: translateY(1px); }
 .btn:disabled { opacity: .45; cursor: default; }
-.btn.primary { background: var(--accent); color: var(--accent-fg); border-color: transparent; font-weight: 600; }
-.btn.primary:hover:not(:disabled) { filter: brightness(1.1); }
 .btn.icon { padding: 5px 9px; font-size: 14px; line-height: 1; }
 
 /* ---------- прогресс ---------- */
@@ -164,23 +162,6 @@ tr.done td.c-name { color: var(--fg-dim); }
 }
 .foot .grow { flex: 1; }
 .foot b { color: var(--fg); font-variant-numeric: tabular-nums; }
-
-/* ---------- диалог ---------- */
-#modal {
-  position: fixed; inset: 0; z-index: 200; display: none;
-  align-items: center; justify-content: center; background: rgba(0, 0, 0, .55);
-}
-#modal.show { display: flex; }
-.dlg {
-  background: var(--bg-2); border: 1px solid var(--line); border-radius: 10px;
-  box-shadow: var(--shadow); padding: 20px; width: 400px; max-width: 92vw;
-  animation: pop .16s cubic-bezier(.2, .9, .3, 1);
-}
-@keyframes pop { from { opacity: 0; transform: scale(.95) translateY(6px); } }
-.dlg h2 { margin: 0 0 10px; font-size: 15px; }
-.dlg p { margin: 0 0 6px; }
-.dlg .note { color: var(--fg-dim); font-size: 11.5px; margin-bottom: 14px; }
-.dlg .acts { display: flex; gap: 8px; justify-content: flex-end; margin-top: 16px; }
 
 .toast {
   position: fixed; bottom: 46px; left: 50%; transform: translateX(-50%) translateY(8px);

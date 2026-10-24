@@ -131,31 +131,6 @@ function undo() {
   toast(t(state.lang, 'undo'));
 }
 
-// ---------- подтверждение ----------
-function ask(kind: 'mark' | 'unmark', count: number): Promise<boolean> {
-  return new Promise(resolve => {
-    const L = state.lang;
-    const dlg = document.createElement('div');
-    dlg.id = 'modal';
-    dlg.innerHTML = `<div class="dlg">
-      <h2>${t(L, 'confirmTitle')}</h2>
-      <p>${t(L, kind === 'mark' ? 'confirmMarkBody' : 'confirmUnmarkBody', count)}</p>
-      <p style="font-weight:600">${t(L, kind === 'mark' ? 'confirmMark' : 'confirmUnmark')}</p>
-      <div class="note">${t(L, 'confirmNote')}</div>
-      <div class="acts">
-        <button class="btn" data-a="no">${t(L, 'cancel')}</button>
-        <button class="btn primary" data-a="yes">${t(L, 'yes')}</button>
-      </div></div>`;
-    const done = (v: boolean) => { dlg.remove(); resolve(v); };
-    dlg.addEventListener('click', e => {
-      const b = (e.target as HTMLElement).closest('button');
-      if (b) done((b as HTMLElement).dataset.a === 'yes');
-      else if (e.target === dlg) done(false);
-    });
-    document.body.appendChild(dlg);
-  });
-}
-
 let toastTimer = 0;
 function toast(msg: string) {
   let el = document.getElementById('toast');
@@ -235,8 +210,6 @@ function renderToolbar(): string {
   const f = state.f;
 
   return `<div class="tools">
-    <button class="btn primary" id="btn-mark">✓ ${t(L, 'markVisible')}</button>
-    <button class="btn" id="btn-unmark">✕ ${t(L, 'unmarkVisible')}</button>
     <button class="btn" id="btn-undo"${state.undo.length ? '' : ' disabled'}>↶ ${t(L, 'undo')}</button>
     <span class="sep"></span>
     <input class="inp w-name" id="f-name" placeholder="${t(L, 'colName')}: …" value="${esc(f.name)}">
@@ -363,18 +336,6 @@ function bindEvents() {
   byId('btn-export')?.addEventListener('click', () => { void doExport(); });
   byId('btn-import')?.addEventListener('click', () => { void doImport(); });
 
-  byId('btn-mark')?.addEventListener('click', async () => {
-    const list = visibleCards();
-    const n = list.filter(c => !state.checked.has(c.id)).length;
-    if (!n) return;
-    if (await ask('mark', n)) { pushUndo(); list.forEach(c => state.checked.add(c.id)); scheduleSave(); renderAll(); }
-  });
-  byId('btn-unmark')?.addEventListener('click', async () => {
-    const list = visibleCards();
-    const n = list.filter(c => state.checked.has(c.id)).length;
-    if (!n) return;
-    if (await ask('unmark', n)) { pushUndo(); list.forEach(c => state.checked.delete(c.id)); scheduleSave(); renderAll(); }
-  });
   byId('btn-undo')?.addEventListener('click', undo);
   byId('btn-reset')?.addEventListener('click', () => {
     state.f = { name: '', deck: 'all', expansion: 'all', found: 'all' };
