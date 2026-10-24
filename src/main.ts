@@ -224,11 +224,6 @@ function renderProgress(): string {
       <div class="prog-val"><b>${have}</b>/${total} · ${pct(have, total)}%</div>
     </div>
     <div class="prog-row">
-      <div class="prog-lbl">${t(L, 'colDeck')}</div>
-      ${bar(DECKS, ds, false)}
-      <div class="prog-val">${nums(DECKS, ds)}</div>
-    </div>
-    <div class="prog-row">
       <div class="prog-lbl">${t(L, 'colExpansion')}</div>
       ${bar(EXPS, es, false)}
       <div class="prog-val">${nums(EXPS, es)}</div>
