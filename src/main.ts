@@ -33,7 +33,7 @@ const state = {
   lang: 'ru' as Lang,
   theme: 'dark' as Theme,
   sort: { field: 'name' as SortField, dir: 1 as 1 | -1 },
-  f: { name: '', kind: '', row: '', territory: '', deck: 'all', expansion: 'all', found: 'all' },
+  f: { name: '', deck: 'all', expansion: 'all', found: 'all' },
   undo: [] as Array<Set<number>>,
   saveTimer: 0,
 };
@@ -62,17 +62,14 @@ const kindPart = (s: string, idx: number): string => {
 // ---------- фильтрация и сортировка ----------
 function visibleCards(): Card[] {
   const f = state.f;
-  const q = [f.name, f.kind, f.row, f.territory].map(s => s.trim().toLowerCase());
+  const q = f.name.trim().toLowerCase();
   const has = (hay: string, needle: string) => hay.toLowerCase().includes(needle);
   const list = CARDS.filter(c => {
     if (f.found === 'yes' && !state.checked.has(c.id)) return false;
     if (f.found === 'no' && state.checked.has(c.id)) return false;
     if (f.deck !== 'all' && c.deck !== f.deck) return false;
     if (f.expansion !== 'all' && c.expansion !== f.expansion) return false;
-    if (q[0] && !has(tr(c, 'name'), q[0])) return false;
-    if (q[1] && !has(kindPart(tr(c, 'kind'), 0), q[1])) return false;
-    if (q[2] && !has(kindPart(tr(c, 'kind'), 1), q[2])) return false;
-    if (q[3] && !has(tr(c, 'territory'), q[3])) return false;
+    if (q && !has(tr(c, 'name'), q)) return false;
     return true;
   });
   const { field, dir } = state.sort;
@@ -243,9 +240,6 @@ function renderToolbar(): string {
     <button class="btn" id="btn-undo"${state.undo.length ? '' : ' disabled'}>↶ ${t(L, 'undo')}</button>
     <span class="sep"></span>
     <input class="inp w-name" id="f-name" placeholder="${t(L, 'colName')}: …" value="${esc(f.name)}">
-    <input class="inp w-kind" id="f-kind" placeholder="${t(L, 'colKind')}: …" value="${esc(f.kind)}">
-    <input class="inp w-row" id="f-row" placeholder="${t(L, 'colRow')}: …" value="${esc(f.row)}">
-    <input class="inp w-terr" id="f-terr" placeholder="${t(L, 'colTerritory')}: …" value="${esc(f.territory)}">
     <span class="sep"></span>
     <select class="sel" id="f-deck">
       ${opt('all', f.deck, `${t(L, 'filterDeck')}: ${t(L, 'filterAll')}`)}
@@ -383,19 +377,16 @@ function bindEvents() {
   });
   byId('btn-undo')?.addEventListener('click', undo);
   byId('btn-reset')?.addEventListener('click', () => {
-    state.f = { name: '', kind: '', row: '', territory: '', deck: 'all', expansion: 'all', found: 'all' };
+    state.f = { name: '', deck: 'all', expansion: 'all', found: 'all' };
     renderAll();
   });
 
-  const txt = (id: string, key: 'name' | 'kind' | 'row' | 'territory') => {
-    const e = byId(id) as HTMLInputElement | null;
-    e?.addEventListener('input', () => {
-      state.f[key] = e.value;
-      // перерисовываем только таблицу: поле ввода остаётся живым, фокус не теряется
-      renderTableOnly();
-    });
-  };
-  txt('f-name', 'name'); txt('f-kind', 'kind'); txt('f-row', 'row'); txt('f-terr', 'territory');
+  const inp = byId('f-name') as HTMLInputElement | null;
+  inp?.addEventListener('input', () => {
+    state.f.name = inp.value;
+    // перерисовываем только таблицу: поле ввода остаётся живым, фокус не теряется
+    renderTableOnly();
+  });
 
   const sel = (id: string, key: 'deck' | 'expansion' | 'found') => {
     const e = byId(id) as HTMLSelectElement | null;
